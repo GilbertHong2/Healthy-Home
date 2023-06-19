@@ -1,15 +1,12 @@
 # Healthy Home Prediction & Map Visalization
 
 # 1.Set Environment & Libraries
-"""
 
-# Commented out IPython magic to ensure Python compatibility.
+
 # # Set an environment for geopandas & other geo-related libraries
-# 
-# # Aclima/Purple Air
-# 
+# # 
 # %%time
-# 
+# # 
 # # Important library for many geopython libraries
 # !apt install gdal-bin python-gdal python3-gdal
 # # Install rtree - Geopandas requirment
@@ -18,7 +15,7 @@
 # !pip install git+git://github.com/geopandas/geopandas.git
 # # Install descartes - Geopandas requirment
 # !pip install descartes
-# 
+
 # # Geo-related libraries
 # !pip install geopandas
 # !pip install osmnx
@@ -26,7 +23,7 @@
 # !pip install folium
 # !pip install plotly_express
 # !pip install geofeather
-# 
+
 # # Others
 # !pip install matplotlib==3.1.3
 
