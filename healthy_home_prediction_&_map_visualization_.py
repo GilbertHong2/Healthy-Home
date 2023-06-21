@@ -86,13 +86,7 @@ from pprint import pprint
 from sklearn.inspection import permutation_importance
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 
-"""# 2.Load Data"""
-
-from google.colab import drive
-drive.mount('/content/drive')
-
-# ****
-cd /content/drive/MyDrive/Laioffer/csv_files/HealthyHome/ #Laioffer/csv_files/HealthyHome/
+# 2.Load Data
 
 # Read air pollutant & health info
 df_1 = pd.read_csv("Home_n_Map.csv")
@@ -102,7 +96,7 @@ df_1.head(5)
 df_1.info()
 
 # Mapping the data points
-# (a) convert pandas df --> geopandas df (based on latitude & longitude) --> epsg:4326 == degree
+# (a) convert pandas df --> geopandas df (based on latitude & longitude)
 
 gpd_1_degree = gpd.GeoDataFrame(df_1, geometry=gpd.points_from_xy(df_1.Longitude, df_1.Latitude), crs={'init' :'epsg:4326'})
 gpd_1_degree.info()
