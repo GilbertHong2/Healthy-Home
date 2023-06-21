@@ -148,52 +148,30 @@ df_1_miss.tail(2)
 df_1_miss = df_1_miss.reset_index()
 # Check info
 df_1_miss.info()
-
-# (5) Remove index
+# Remove index
 df_1_miss = df_1_miss.drop(['index'], axis=1)
 
-"""## Duplicated values"""
+# Duplicated values
 
-# (0) Size of data
-print ("Num of rows: " + str(df_1_miss.shape[0])) # row count
-print ("Num of columns: " + str(df_1_miss.shape[1])) # col count
+# Size of data
+df_1_miss.shape # row x col
 
-# (1) Extract duplicated row
+# Extract duplicated row
 df_1_miss[df_1_miss.duplicated()]
 
-# (2) Print the first & last rows BEFORE removing duplicated values
-df_1_miss.iloc[[0,-1]]
-
-# # Remove duplicated row
-# # (method one) keep='first' -> the first occurrence gets kept, and all others get identified as duplicates.
-# new = df.drop_duplicates(subset=['column1'], keep='first', inplace=False)
-# # (method two) keep='last' -> the last occurrence gets kept, and all others get identified as duplicates.
-# new = df.drop_duplicates(subset=['column1'], keep='last', inplace=False)
-# # (method three) keep='False' -> remove all duplicates
-# new = df.drop_duplicates(subset=['column1'], keep='false', inplace=False)
-
-
-# (3) Remove duplicated values
+# Remove duplicated row
+# Keep first, last or remove all
 df_1_dup = df_1_miss.drop_duplicates()
 df_1_dup.tail(2)
 
-# (4) Reset index, creating a new df
+# Reset index and check
 df_1_dup.reset_index(inplace=True)
-# (5) Check duplicated values
 df_1_dup[df_1_dup.duplicated()]
 
-# (6) Print the first & last rows AFTER removing duplicated values
-df_1_dup.iloc[[0,-1]]
-
-"""## Outliers"""
-
-# Copy
+# Outliers
 df_1_out = df_1_dup.copy()
 
-df_1_out.head(1)
-
 # Checking outliers
-
 _,axss = plt.subplots(2,3, figsize=[20,10])  # create a 2x3 matrix = 6 figures
 sns.boxplot(y ='NO', data=df_1_out, ax=axss[0, 0])
 sns.boxplot(y ='NO2', data=df_1_out, ax=axss[0, 1])
@@ -202,30 +180,18 @@ sns.boxplot(y ='pop_den', data=df_1_out, ax=axss[1][0])
 sns.boxplot(y ='wind', data=df_1_out, ax=axss[1][1])
 sns.boxplot(y ='temp', data=df_1_out, ax=axss[1][2])
 
-# Mannually remove outliers based on knowledge
-# if NO > 200 -> let all of them equl to 200
+# knowledge for NO: similar effect for high levels
 df_1_out.loc[df_1_out['NO'] > 200, 'NO'] = 200
 
-"""# 4.Feature Engineering
-
-## Oakland city
-"""
-
-# Import oakland street and map data
+# Feature Engineering: use geography data of Oakland City
 Oakland_poly = ox.geocode_to_gdf('Oakland, California')
-
 Oakland_poly
-
 Oakland_poly.plot()
 
-"""### convert geo"""
-
-# Conver geometey object -> geo df
+# Convert to geo df
+df_1_out['geometry'] = df_1_out['geometry'].apply(lambda x: Point(map(float, x.lstrip('POINT (').rstrip(')').split())))
 gpd_1_degree = gpd.GeoDataFrame(df_1_out, geometry = df_1_out['geometry'], crs={'init' :'epsg:4326'})
-
 Oakland_poly.crs, gpd_1_degree.crs
-
-gpd_1_degree.head(2)
 
 """### Spatial-join"""
 
