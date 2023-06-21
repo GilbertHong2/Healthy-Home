@@ -134,7 +134,7 @@ df_1_drop.head(2)
 
 # Deal with Missing Data 
 
-# (0) Size of data
+# Size of data
 print ("Num of rows: " + str(df_1_drop.shape[0])) # row count
 print ("Num of columns: " + str(df_1_drop.shape[1])) # col count
 
