@@ -2,7 +2,6 @@
 
 # 1.Set Environment & Libraries
 
-
 # # Set an environment for geopandas & other geo-related libraries
 # # 
 # %%time
@@ -16,6 +15,7 @@
 # # Install descartes - Geopandas requirment
 # !pip install descartes
 
+
 # # Geo-related libraries
 # !pip install geopandas
 # !pip install osmnx
@@ -24,13 +24,16 @@
 # !pip install plotly_express
 # !pip install geofeather
 
+
 # # Others
 # !pip install matplotlib==3.1.3
+
 
 # Data manipulation libraries
 import os
 import pandas as pd
 import numpy as np
+
 
 # Geo-related libraries
 import geopandas as gpd
@@ -49,10 +52,12 @@ from shapely.geometry import Point, MultiPoint
 from shapely.ops import nearest_points
 from shapely import wkt
 
+
 # Visualization
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import seaborn as sns
+
 
 # Timer
 from tqdm import tqdm, tqdm_notebook
