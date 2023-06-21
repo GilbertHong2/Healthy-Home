@@ -135,22 +135,18 @@ df_1_drop.head(2)
 # Deal with Missing Data 
 
 # Size of data
-print ("Num of rows: " + str(df_1_drop.shape[0])) # row count
-print ("Num of columns: " + str(df_1_drop.shape[1])) # col count
+df_1_drop.shape # row x col
 
-# (1) Check missing data
-print("*** Missing Values ***")
+# Check missing data
 print('Sum of N/A values', df_1_drop.isnull().sum())
 
-# (2) Choose a method of handling the missing data - drop all N/A?  avg?  front fill?   back fill?
+# handling the missing data - drop all N/A, (avg/front fill/back fill)
 df_1_miss = df_1_drop.dropna(axis=0, subset=['zone', 'wind', 'temp'])
-
 df_1_miss.tail(2)
 
-# (3) Reset index
+# Reset index
 df_1_miss = df_1_miss.reset_index()
-
-# (4) Check info
+# Check info
 df_1_miss.info()
 
 # (5) Remove index
