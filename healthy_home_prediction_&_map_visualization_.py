@@ -193,66 +193,48 @@ df_1_out['geometry'] = df_1_out['geometry'].apply(lambda x: Point(map(float, x.l
 gpd_1_degree = gpd.GeoDataFrame(df_1_out, geometry = df_1_out['geometry'], crs={'init' :'epsg:4326'})
 Oakland_poly.crs, gpd_1_degree.crs
 
-"""### Spatial-join"""
-
-# spatial-join the dataset of pollutant and health with the Oakland polygon grid (make sure all data represent Oakland city)
+# join the dataset health with the Oakland polygon grid
 gpd_1_city = gpd.sjoin(gpd_1_degree, Oakland_poly, how="inner", op="intersects")
-
 gpd_1_city.head(2)
 
-# count unique values for each feature
-print("*** Cnts of Each Feature ***")
+# drop unnecessary cols
 print(gpd_1_city.nunique())
-
 gpd_1_city = gpd_1_city.drop(['index_right', 'bbox_east', 'bbox_north', 'bbox_south', 'bbox_west'], axis=1)
 
-"""## City structure: Roads
+# Identify City structure
 
-### city
-"""
-
-# (1) grab street data (roads and intersections) for entire city
+# street data (roads and intersections) for entire city
 oak_streets = ox.graph_from_place('Oakland, California', network_type = 'drive')
 nodes, edges = ox.graph_to_gdfs(oak_streets)
 
-nodes.head(1)
+# nodes.head(1)
+# edges.head(1)
+# edges.plot()
 
-edges.head(1)
-
-edges.plot()
-
-"""### road"""
-
-# (2 - a) Identify roads
+# Identify roads
 oakland_rds = edges.copy()
 print(oakland_rds['highway'].value_counts())
-print ("Num of rows: " + str(oakland_rds.shape[0])) # row count
-print ("Num of columns: " + str(oakland_rds.shape[1])) # col count
+print (oakland_rds.shape)
 
-# (2 - b) Clean roads
-
+# Clean up road names
 # remove '_link' in xxx_link & add it to xxx
 # (e.g., motorway_link is added on motorway )
 oakland_rds['highway'] = oakland_rds['highway'].str.replace('_link', '')
 
-
 # 'trunk'  -->  'secondary'
 oakland_rds['highway'] = np.where(oakland_rds['highway'] == 'trunk', 'secondary', oakland_rds['highway'])
-
 
 # 'living_street' --> 'residential'
 oakland_rds['highway'] = np.where(oakland_rds['highway'] == 'living_street', 'residential', oakland_rds['highway'])
 
-# Check results
 print(oakland_rds['highway'].value_counts())
 
 sns.countplot(oakland_rds['highway'])
 
 """### map"""
 
-# (3) Map them out
-
-# grab subsets of roadtypes
+# Map them out
+# separate as subsets of roadtypes
 oakland_highways = oakland_rds[oakland_rds.highway == 'motorway']
 oakland_primary = oakland_rds[oakland_rds.highway == 'primary']
 oakland_secondary = oakland_rds[oakland_rds.highway == 'secondary']
@@ -298,7 +280,6 @@ oakland_secondary.to_crs(epsg=3857).plot(ax = ax,
 ctx.add_basemap(ax, source=ctx.providers.OpenStreetMap.Mapnik)
 
 # Primary & Secondary
-
 fig, ax = plt.subplots(figsize=(12, 10))
 oakland_primary.to_crs(epsg=3857).plot(ax = ax,
                 figsize=(12,12),
@@ -335,15 +316,13 @@ ctx.add_basemap(ax, source=ctx.providers.OpenStreetMap.Mapnik)
 
 gpd_1_city.crs
 
-# Conver geometey from degree -> meter (utm: unit in meter)
-# 'epsg:32610' == meter
-# 'epsg:4326' == degree
-gpd_1_city_utm = gpd_1_city.to_crs({'init': 'epsg:32610'}).copy()      # much faster to do the re-projection to meters
+# Now calculate the distance from the road
+# Convert geometry from degree to meter
+gpd_1_city_utm = gpd_1_city.to_crs({'init': 'epsg:32610'}).copy()
 highway_utm = oakland_highways.to_crs({'init': 'epsg:32610'}).copy()
 primary_utm = oakland_primary.to_crs({'init': 'epsg:32610'}).copy()
 secondary_utm = oakland_secondary.to_crs({'init': 'epsg:32610'}).copy()
 tertiary_utm = oakland_tertiary.to_crs({'init': 'epsg:32610'}).copy()
-
 
 # UDF
 def distance_to_roadway(gps, roadway):
@@ -353,29 +332,11 @@ def distance_to_roadway(gps, roadway):
         dists.append(i.distance(gps))
     return(np.min(dists))
 
-
-# # Calculate distance to nearest major roadway
-# gpd_1_city['closest_highway'] = gpd_1_city_utm['geometry'].apply(distance_to_roadway, roadway = highway_utm)
-# gpd_1_city['closest_primary'] = gpd_1_city_utm['geometry'].apply(distance_to_roadway, roadway = primary_utm)
-# gpd_1_city['closest_secondary'] = gpd_1_city_utm['geometry'].apply(distance_to_roadway, roadway = secondary_utm)
-# gpd_1_city['closest_tertiary'] = gpd_1_city_utm['geometry'].apply(distance_to_roadway, roadway = tertiary_utm)
-
-# Calculate distance to nearest highway
-tqdm.pandas()
-gpd_1_city['closest_highway'] = gpd_1_city_utm['geometry'].progress_apply(distance_to_roadway, roadway = highway_utm)
-# gpd_1_city['closest_highway'] = gpd_1_city['geometry'].apply(distance_to_roadway, roadway = highway_utm)
-
-# Calculate distance to nearest primary road
-tqdm.pandas()
-gpd_1_city['closest_primary'] = gpd_1_city_utm['geometry'].progress_apply(distance_to_roadway, roadway = primary_utm)
-
-# Calculate distance to nearest secondary road
-tqdm.pandas()
-gpd_1_city['closest_secondary'] = gpd_1_city_utm['geometry'].progress_apply(distance_to_roadway, roadway = secondary_utm)
-
-# Calculate distance to nearest tertiary road
-tqdm.pandas()
-gpd_1_city['closest_tertiary'] = gpd_1_city_utm['geometry'].progress_apply(distance_to_roadway, roadway = tertiary_utm)
+# Calculate distance to nearest major roadway
+gpd_1_city['closest_highway'] = gpd_1_city_utm['geometry'].apply(distance_to_roadway, roadway = highway_utm)
+gpd_1_city['closest_primary'] = gpd_1_city_utm['geometry'].apply(distance_to_roadway, roadway = primary_utm)
+gpd_1_city['closest_secondary'] = gpd_1_city_utm['geometry'].apply(distance_to_roadway, roadway = secondary_utm)
+gpd_1_city['closest_tertiary'] = gpd_1_city_utm['geometry'].apply(distance_to_roadway, roadway = tertiary_utm)
 
 gpd_1_city.head(2)
 
