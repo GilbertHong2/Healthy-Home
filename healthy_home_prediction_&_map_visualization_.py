@@ -122,23 +122,17 @@ df_1.head(2)
 df_1 = df_1.rename(columns={'NO value': 'NO'})
 df_1 = df_1.rename(columns={'NO2 value': 'NO2'})
 df_1 = df_1.rename(columns={'PM2p5 value': 'PM2p5'})
-
 # EDF_points = EDF_points.rename(index=str, columns={"NO Value": "NO", "NO2 Value": "NO2", "PM2p5 Value": "PM2p5"})
 
-"""## Drop Irrelevant Feature"""
-
+# Drop Irrelevant Feature
 # count unique values for each feature - do this step bf missing data， preveting unnecessary filters
-print("*** Cnts of Each Feature ***")
-print(df_1.nunique())
-
-df_1.head(2)
+df_1.nunique()
 
 # Drop columns (features)
 df_1_drop = df_1.drop(['state', 'county', 'tract_name', 'GEOID'], axis=1)
-
 df_1_drop.head(2)
 
-"""## Missing Data"""
+# Deal with Missing Data 
 
 # (0) Size of data
 print ("Num of rows: " + str(df_1_drop.shape[0])) # row count
