@@ -87,23 +87,21 @@ from sklearn.inspection import permutation_importance
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 
 # 2.Load Data
-
 # Read air pollutant & health info
 df_1 = pd.read_csv("Home_n_Map.csv")
 df_1.head(5)
 
-# Check a null counts(??) and data types
+# Check a null counts and data types
 df_1.info()
 
 # Mapping the data points
-# (a) convert pandas df --> geopandas df (based on latitude & longitude)
+# convert pandas df to geopandas df (based on latitude & longitude)
 
 gpd_1_degree = gpd.GeoDataFrame(df_1, geometry=gpd.points_from_xy(df_1.Longitude, df_1.Latitude), crs={'init' :'epsg:4326'})
 gpd_1_degree.info()
 
 # Mapping the data points
-# (b) draw a figure
-
+# draw a figure
 fig, ax = plt.subplots(figsize=(12, 10))
 gpd_1_degree.to_crs(epsg=3857).plot(ax = ax,
                 figsize=(12,12),
@@ -116,20 +114,13 @@ gpd_1_degree.to_crs(epsg=3857).plot(ax = ax,
 ctx.add_basemap(ax, source=ctx.providers.OpenStreetMap.Mapnik)
 # fig.savefig('output/file_name', dpi = 400, transparent = True)
 
-"""# 3.Data Cleaning"""
-
+# 3.Data Cleaning
 # Check dataframe
 df_1.head(2)
 
-"""## Rename"""
-
-# Rename (replacing 'NO value' to 'NO')
+# Rename
 df_1 = df_1.rename(columns={'NO value': 'NO'})
-
-# Rename (replacing 'NO2 value' to 'NO')
 df_1 = df_1.rename(columns={'NO2 value': 'NO2'})
-
-# Rename (replacing 'NO value' to 'NO')
 df_1 = df_1.rename(columns={'PM2p5 value': 'PM2p5'})
 
 # EDF_points = EDF_points.rename(index=str, columns={"NO Value": "NO", "NO2 Value": "NO2", "PM2p5 Value": "PM2p5"})
