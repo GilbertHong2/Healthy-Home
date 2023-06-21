@@ -183,7 +183,7 @@ sns.boxplot(y ='temp', data=df_1_out, ax=axss[1][2])
 # knowledge for NO: similar effect for high levels
 df_1_out.loc[df_1_out['NO'] > 200, 'NO'] = 200
 
-# Feature Engineering: use geography data of Oakland City
+# 4. Feature Engineering: use geography data of Oakland City
 Oakland_poly = ox.geocode_to_gdf('Oakland, California')
 Oakland_poly
 Oakland_poly.plot()
@@ -202,6 +202,7 @@ print(gpd_1_city.nunique())
 gpd_1_city = gpd_1_city.drop(['index_right', 'bbox_east', 'bbox_north', 'bbox_south', 'bbox_west'], axis=1)
 
 # Identify City structure
+# Streets
 
 # street data (roads and intersections) for entire city
 oak_streets = ox.graph_from_place('Oakland, California', network_type = 'drive')
@@ -230,8 +231,6 @@ oakland_rds['highway'] = np.where(oakland_rds['highway'] == 'living_street', 're
 print(oakland_rds['highway'].value_counts())
 
 sns.countplot(oakland_rds['highway'])
-
-"""### map"""
 
 # Map them out
 # separate as subsets of roadtypes
@@ -312,8 +311,6 @@ oakland_tertiary.to_crs(epsg=3857).plot(ax = ax,
             );
 ctx.add_basemap(ax, source=ctx.providers.OpenStreetMap.Mapnik)
 
-"""### road distance"""
-
 gpd_1_city.crs
 
 # Now calculate the distance from the road
@@ -340,25 +337,15 @@ gpd_1_city['closest_tertiary'] = gpd_1_city_utm['geometry'].apply(distance_to_ro
 
 gpd_1_city.head(2)
 
-"""## City Structure: traffic signal & stop sign
-
-### identify
-"""
-
-# (1) Identify traffic signals & stop signs
+# traffic signal & stop sign
+# Identify traffic signals & stop signs
 nodes['highway'].value_counts()
-
 nodes.head(2)
-
 nodes.crs
 
-"""### map"""
-
-# (2) Map them out
-
+# Map them out
 trafic_signals = nodes[nodes['highway'] == 'traffic_signals']
 stop_cross = nodes[nodes['highway'] == 'stop']
-
 
 # Traffic signal: blue
 # Stop sign: red
@@ -381,32 +368,24 @@ stop_cross.to_crs(epsg=3857).plot(ax = ax,
             );
 ctx.add_basemap(ax, source=ctx.providers.OpenStreetMap.Mapnik)
 
-"""### intersection & traffic signal"""
-
-# (3 - a) Conver geometey from degree -> meter (utm: unit in meter)
-# 'epsg:32610' == meter
-# 'epsg:4326' == degree
-traffic_sig_utm = trafic_signals.to_crs({'init': 'epsg:32610'}).copy()    # much faster to do the re-projection to meters
+# Convert geometry from degree to meter
+traffic_sig_utm = trafic_signals.to_crs({'init': 'epsg:32610'}).copy()
 stop_sign_utm = stop_cross.to_crs({'init': 'epsg:32610'}).copy()
 
-
-# (3 - b) set UDF
-
+# set UDF
 def nearest_intersection(gps, intersections):
     ''' Calculates distance from GPS point to nearest intersection'''
     closest_point = nearest_points(gps, MultiPoint(intersections.values))[1]
     return(gps.distance(closest_point))
 
-# (3 - c) Calculate distance to nearest traffic signal
-tqdm.pandas()
-gpd_1_city['trafic_signal_dist'] = gpd_1_city_utm['geometry'].progress_apply(nearest_intersection, intersections = traffic_sig_utm['geometry'])
-# gpd_1_city['trafic_signal_dist'] = gpd_1_city['geometry'].apply(nearest_intersection, intersections = traffic_sig_utm['geometry'])
+# tqdm.pandas() # show progress bar
+# gpd_1_city['trafic_signal_dist'] = gpd_1_city_utm['geometry'].progress_apply(nearest_intersection, intersections = traffic_sig_utm['geometry'])
+gpd_1_city['trafic_signal_dist'] = gpd_1_city_utm['geometry'].apply(nearest_intersection, intersections = traffic_sig_utm['geometry'])
 
-# (3 - c) Calculate distance to nearest traffic signal
-tqdm.pandas()
-gpd_1_city['stop_sign_dist'] = gpd_1_city_utm['geometry'].progress_apply(nearest_intersection, intersections = stop_sign_utm['geometry'])
+# Calculate distance to nearest traffic signal
+gpd_1_city['stop_sign_dist'] = gpd_1_city_utm['geometry'].apply(nearest_intersection, intersections = stop_sign_utm['geometry'])
 
-"""## Category Encoding"""
+## Category Encoding
 
 gpd_1_city.head(2)
 
