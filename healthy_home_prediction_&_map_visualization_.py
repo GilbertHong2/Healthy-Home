@@ -767,12 +767,9 @@ summary_1 = pd.DataFrame({'Random Forest':list(FI_rf.index),
                'Permutation Importance':list(PI_res.index)})
 summary_1
 
-# PM2.5 (HW)
+# PM2.5
 
 # Ensemble learning - Bagging
-
-
-# Use the same random forest gridsearch as above
 forest = RandomForestRegressor(n_jobs=2)
 
 params = {'max_features': [6, 8, 10],
@@ -781,14 +778,17 @@ params = {'max_features': [6, 8, 10],
 forest_grid_pm = GridSearchCV(forest, params, cv=5, scoring = 'neg_mean_squared_error')
 forest_grid_pm.fit(X_train_PM, y_train_PM)
 
-#Best estimator and CV score
-print('Best score (RMSE)', np.sqrt(np.abs(forest_grid_pm.best_score_)))
-print(forest_grid_pm.best_estimator_)
+# Best estimator
+forest_grid_pm.best_estimator_
 
 fig = plt.figure(figsize=(9,6))
 forest_out_pm = forest_grid_pm.predict(X_test_PM)
 pred_summary(forest_out_pm, y_test_PM, limit=50)
 plt.xlabel('Predicted PM', fontsize = 18); plt.ylabel('Observed PM', fontsize=18)
+
+FI_rf = pd.DataFrame(forest_grid_pm.best_estimator_.feature_importances_, index=X.columns, columns=['Feature Importance (RF)'])
+FI_rf = FI_rf.sort_values(by='Feature Importance (RF)',ascending=False)
+FI_rf # major factor identification
 
 features = X.columns
 importance = forest_grid_pm.best_estimator_.feature_importances_
