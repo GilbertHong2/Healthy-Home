@@ -639,7 +639,7 @@ forest_out_no2 = forest_grid_no2.predict(X_test_NO2)
 pred_summary(forest_out_no2, y_test_NO2, limit=50)
 plt.xlabel('Predicted NO$_2$', fontsize = 18); plt.ylabel('Observed NO$_2$', fontsize=18)
 
-FI_rf = pd.DataFrame(forest_grid_no2.best_estimator_.feature_importances_, index=X_train_NO2.columns, columns=['Feature Importance (RF)'])
+FI_rf = pd.DataFrame(forest_grid_no2.best_estimator_.feature_importances_, index=X.columns, columns=['Feature Importance (RF)'])
 FI_rf = FI_rf.sort_values(by='Feature Importance (RF)',ascending=False)
 FI_rf # major factor identification
 
