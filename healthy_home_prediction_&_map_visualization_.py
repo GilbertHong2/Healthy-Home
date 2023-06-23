@@ -643,57 +643,49 @@ FI_rf = pd.DataFrame(forest_grid_no2.best_estimator_.feature_importances_, index
 FI_rf = FI_rf.sort_values(by='Feature Importance (RF)',ascending=False)
 FI_rf # major factor identification
 
-"""### ensemble learning - Boosting"""
-
-# Use the same random forest gridsearch as above
+# ensemble learning - Boosting
 gb_forest = GradientBoostingRegressor()
 
 params = {'max_features': [6, 8, 10],
           'learning_rate': [0.05, 0.1, 0.5],
-          'n_estimators': [150, 200]}
+          'n_estimators': [100, 150, 200]}
 
 gb_forest_grid_no2 = GridSearchCV(gb_forest, params, cv=5, scoring = 'neg_mean_squared_error')
 gb_forest_grid_no2.fit(X_train_NO2, y_train_NO2)
 
-#Best estimator and CV score
-print('Best score (RMSE)', np.sqrt(np.abs(gb_forest_grid_no2.best_score_)))
-print(gb_forest_grid_no2.best_estimator_)
+# Best estimator
+gb_forest_grid_no2.best_estimator_
 
 fig = plt.figure(figsize=(9,6))
 gb_forest_out_no2 = gb_forest_grid_no2.predict(X_test_NO2)
 pred_summary(gb_forest_out_no2, y_test_NO2, limit=50)
 plt.xlabel('Predicted NO$_2$', fontsize = 18); plt.ylabel('Observed NO$_2$', fontsize=18)
 
-FI_gb = pd.DataFrame(gb_forest_grid_no2.best_estimator_.feature_importances_, index=X_train_NO2.columns, columns=['Feature Importance (GB)'])
+FI_gb = pd.DataFrame(gb_forest_grid_no2.best_estimator_.feature_importances_, index=X.columns, columns=['Feature Importance (GB)'])
 FI_gb = FI_gb.sort_values(by='Feature Importance (GB)',ascending=False)
 FI_gb
 
 g2 = sns.barplot(x="Feature Importance (GB)", y=FI_gb.index, data=FI_gb)
 g2.figure.set_size_inches(12, 9)
 
-"""### permutation Importance"""
+# permutation Importance
 
-# (1) Set the best parameters from hyperparameter tuning
+# Current paramters
 grid_search_best_no2 = forest_grid_no2.best_estimator_
-print('Parameters currently in use:\n')
 pprint(grid_search_best_no2.get_params())
 
-# (2) Permutation Importance - Random Forest
+# Permutation Importance
 PI_no2 = permutation_importance(grid_search_best_no2, X_test_NO2, y_test_NO2, n_repeats=5, random_state=1)
 
-
-
 PI_res = pd.DataFrame(data=np.transpose([PI_no2['importances_mean'],PI_no2['importances_std']]),
-             index = X_test_NO2.columns,columns=['PI_mean','PI_std'])
+             index = X.columns,columns=['PI_mean','PI_std'])
 PI_res = PI_res.sort_values(by='PI_mean',ascending=False)
 PI_res
 
 g1 = sns.barplot(x="PI_mean", y=PI_res.index, data=PI_res)
 g1.figure.set_size_inches(12, 9)
 
-"""### result summary"""
-
-# Summary
+# result summary
 
 summary_0 = pd.DataFrame({'Random Forest':list(FI_rf.index),
               'Gradient Boost':list(FI_gb.index),
