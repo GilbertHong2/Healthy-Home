@@ -798,12 +798,35 @@ plt.title("PM Feature importances (Random Forest)")
 plt.barh(features[indices], importance[indices],
        color="b",  align="center");
 
-"""### Ensemble learning - Boosting
+# Ensemble learning - Boosting
+gb_forest = GradientBoostingRegressor()
 
-### permutation importance
+params = {'max_features': [6, 8, 10],
+          'learning_rate': [0.05, 0.1, 0.5],
+          'n_estimators': [100, 150, 200]}
 
-### result summary
-"""
+gb_forest_grid_pm = GridSearchCV(gb_forest, params, cv=5, scoring = 'neg_mean_squared_error')
+gb_forest_grid_pm.fit(X_train_PM, y_train_PM)
+
+# Best estimator
+gb_forest_grid_pm.best_estimator_
+
+fig = plt.figure(figsize=(9,6))
+gb_forest_out_pm = gb_forest_grid_pm.predict(X_test_PM)
+pred_summary(gb_forest_out_pm, y_test_PM, limit=50)
+plt.xlabel('Predicted PM 2.5', fontsize = 18); plt.ylabel('Observed PM 2.5', fontsize=18)
+
+FI_gb = pd.DataFrame(gb_forest_grid_pm.best_estimator_.feature_importances_, index=X.columns, columns=['Feature Importance (GB)'])
+FI_gb = FI_gb.sort_values(by='Feature Importance (GB)',ascending=False)
+FI_gb
+
+g2 = sns.barplot(x="Feature Importance (GB)", y=FI_gb.index, data=FI_gb)
+g2.figure.set_size_inches(12, 9)
+
+# permutation importance
+
+# result summary
+
 
 
 
