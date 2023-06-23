@@ -623,18 +623,16 @@ X_test_PM = scaler.transform(X_test_PM)
 
 # Use the same random forest gridsearch as above
 from sklearn.ensemble import RandomForestRegressor
-
 forest = RandomForestRegressor(n_jobs=2)
 
 params = {'max_features': [6, 8, 10],
-          'n_estimators': [150, 200]}
+          'n_estimators': [100, 150, 200]}
 
 forest_grid_no2 = GridSearchCV(forest, params, cv=5, scoring = 'neg_mean_squared_error')
 forest_grid_no2.fit(X_train_NO2, y_train_NO2)
 
-#Best estimator and CV score
-print('Best score (RMSE)', np.sqrt(np.abs(forest_grid_no2.best_score_)))
-print(forest_grid_no2.best_estimator_)
+# Best estimator
+forest_grid_no2.best_estimator_
 
 fig = plt.figure(figsize=(9,6))
 forest_out_no2 = forest_grid_no2.predict(X_test_NO2)
