@@ -692,11 +692,9 @@ summary_0 = pd.DataFrame({'Random Forest':list(FI_rf.index),
                'Permutation Importance':list(PI_res.index)})
 summary_0
 
-"""## NO (HW)
+# NO
 
-### Ensemble learning - Bagging
-"""
-
+# Ensemble learning - Bagging
 forest = RandomForestRegressor(n_jobs=2)
 
 params = {'max_features': [6, 8, 10],
@@ -705,15 +703,18 @@ params = {'max_features': [6, 8, 10],
 forest_grid = GridSearchCV(forest, params, cv=5, scoring = 'neg_mean_squared_error')
 forest_grid.fit(X_train_NO, y_train_NO)
 
-#Best estimator and CV score
-print('Best score (RMSE)', np.sqrt(np.abs(forest_grid.best_score_)))
-print(forest_grid.best_estimator_)
+# Best estimator
+forest_grid.best_estimator_
 
 forest_NO = forest_grid.predict(X_test_NO)
 pred_summary(forest_NO, y_test_NO, limit=110)
 plt.xlabel('Predicted NO', fontsize = 18); plt.ylabel('Observed NO', fontsize=18)
 
-features = X_train_NO.columns
+FI_rf = pd.DataFrame(forest_grid_no.best_estimator_.feature_importances_, index=X.columns, columns=['Feature Importance (RF)'])
+FI_rf = FI_rf.sort_values(by='Feature Importance (RF)',ascending=False)
+FI_rf # major factor identification
+
+features = X.columns
 importance = forest_grid.best_estimator_.feature_importances_
 indices = np.argsort(importance)
 plt.figure(figsize=(5, 7))
@@ -722,16 +723,39 @@ plt.barh(features[indices], importance[indices],
        color="r",  align="center")
 plt.tick_params(labelsize=14);
 
-"""### Ensemble learning - Boosting
+# Ensemble learning - Boosting
+gb_forest = GradientBoostingRegressor()
 
-### permutation importance
+params = {'max_features': [6, 8, 10],
+          'learning_rate': [0.05, 0.1, 0.5],
+          'n_estimators': [100, 150, 200]}
 
-### result summary
+gb_forest_grid_no = GridSearchCV(gb_forest, params, cv=5, scoring = 'neg_mean_squared_error')
+gb_forest_grid_no.fit(X_train_NO, y_train_NO2)
 
-## PM2.5 (HW)
+# Best estimator
+gb_forest_grid_no.best_estimator_
 
-### Ensemble learning - Bagging
-"""
+fig = plt.figure(figsize=(9,6))
+gb_forest_out_no = gb_forest_grid_no.predict(X_test_NO)
+pred_summary(gb_forest_out_no, y_test_NO, limit=50)
+plt.xlabel('Predicted NO', fontsize = 18); plt.ylabel('Observed NO', fontsize=18)
+
+FI_gb = pd.DataFrame(gb_forest_grid_no.best_estimator_.feature_importances_, index=X.columns, columns=['Feature Importance (GB)'])
+FI_gb = FI_gb.sort_values(by='Feature Importance (GB)',ascending=False)
+FI_gb
+
+g2 = sns.barplot(x="Feature Importance (GB)", y=FI_gb.index, data=FI_gb)
+g2.figure.set_size_inches(12, 9)
+
+# permutation importance
+
+# result summary
+
+# PM2.5 (HW)
+
+# Ensemble learning - Bagging
+
 
 # Use the same random forest gridsearch as above
 forest = RandomForestRegressor(n_jobs=2)
