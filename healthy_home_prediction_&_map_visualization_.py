@@ -405,16 +405,15 @@ gpd_1_city = pd.concat([gpd_1_city, road_type], axis = 1)
 
 gpd_1_city.head(2)
 
-"""## Data Preparation"""
+# Data Preparation
 
 gpd_1_city.info()
 
-"""### drop"""
-
+# drop
 # Drop features
 gpd_1_city = gpd_1_city.drop(['index', 'Pt_CANCR'], axis=1)
 
-"""### health conversion"""
+# health conversion
 
 # if df['Respiratory_HI'] contains 'high', replace "high" to "3" and save into df['Respiratory_HI']
 gpd_1_city['Respiratory_HI'] = np.where(gpd_1_city['Respiratory_HI'].str.contains('high'), '3', gpd_1_city['Respiratory_HI'])
@@ -435,8 +434,7 @@ gpd_1_city.zone.value_counts()
 
 gpd_1_city.info()
 
-"""### Numerical & Categorical"""
-
+# Numerical & Categorical
 # Numerical Features
 numerical = ['NO', 'NO2', 'PM2p5', 'pop_den', 'wind', 'temp', 'closest_highway', 'closest_primary', 'closest_secondary', 'closest_tertiary',
              'trafic_signal_dist', 'stop_sign_dist', 'road_type_motorway', 'road_type_primary', 'road_type_residential', 'road_type_secondary', 'road_type_tertiary',
@@ -445,11 +443,11 @@ numerical = ['NO', 'NO2', 'PM2p5', 'pop_den', 'wind', 'temp', 'closest_highway',
 # Categorical Features
 categorical = ['geometry', 'zone', 'road_type']
 
-"""# 5.Data Visualization"""
+# 5.Data Visualization
 
 df_vis = gpd_1_city.copy()
 
-"""## Correlation Matrix"""
+## Correlation Matrix
 
 f, ax = plt.subplots(figsize= [20,15])
 sns.heatmap(df_vis[numerical].corr(), annot=True, fmt=".2f", ax=ax, cmap = "magma" )
@@ -527,9 +525,9 @@ plt.xlabel('Distance to Major Highway (m)', fontsize=18); plt.ylabel('PM2.5 (ug/
 # save engineered dataset
 df_vis.to_file('/content/drive/MyDrive/Colab Notebooks/model_data', driver='GeoJSON')
 
-"""# 6.Model"""
+# 6.Model
 
-df_model = df_vis.copy()
+df_model = gpd.read_file('/content/drive/MyDrive/Colab Notebooks/model_data')
 
 def abline(slope, intercept):
     """Plot a line from slope and intercept"""
@@ -541,7 +539,8 @@ def abline(slope, intercept):
 
 def pred_summary(pred, ytest, limit = 200):
     """Plotting for test set predictions"""
-    sns.scatterplot(pred, ytest)
+    df = pd.DataFrame({"Predicted": pred, "Actual": ytest})
+    sns.scatterplot(x="Predicted", y="Actual", data=df)
     abline(1, 0) #1-1 line
     plt.ylim(0, limit); plt.xlim(0, limit)
     plt.tick_params(labelsize=18)
@@ -573,69 +572,54 @@ def plot_corr(df, size=10, MI = False):
     plt.xticks(range(len(corr.columns)), corr.columns);
     plt.yticks(range(len(corr.columns)), corr.columns);
 
-"""## Feature selection"""
+
+# Feature selection
 
 df_model[numerical].columns
 
 X = df_model[numerical].drop(['Respiratory_HI', 'Longitude','Latitude', 'road_type_unclassified','NO', 'NO2', 'PM2p5'], axis=1)
-
 X.columns
 
-"""## Model Selection (hw)
-
-## Train-Test Split & Feature Scaling
-"""
+# Model Selection
+# Train-Test Split & Feature Scaling
 
 # NO
 y_NO = df_model['NO']
-
-# NO Split the Data
 X_train_NO, X_test_NO, y_train_NO, y_test_NO = model_selection.train_test_split(X, y_NO, test_size=0.25, random_state= 1)
 print('training data has ' + str(X_train_NO.shape[0]) + ' observation with ' + str(X_train_NO.shape[1]) + ' features')
 print('test data has ' + str(X_test_NO.shape[0]) + ' observation with ' + str(X_test_NO.shape[1]) + ' features')
+index = X_train_NO.index
 
-
-# # Feature Scaling
-# scaler = StandardScaler()                               # initialize the class and call it scaler
-# scaler.fit(X_train_NO)                                  # fit = training data, means recalculating the data to have a mean of 0 and a std of 1 (btw, normalization typicallu means rescales the values into a range of [0,1])
-# X_train_NO = scaler.transform(X_train_NO)               # apply above-calculated mean&std to standardize X_train data
-# X_test_NO = scaler.transform(X_test_NO)                 # apply above-calculated min&std to X_test data (testing data could only use parameters from training data)
+# Feature Scaling
+scaler = StandardScaler()
+scaler.fit(X_train_NO)
+X_train_NO = scaler.transform(X_train_NO)
+X_test_NO = scaler.transform(X_test_NO)
 
 # NO2
 y_NO2 = df_model['NO2']
-
-
-# NO2 Split the Data
 X_train_NO2, X_test_NO2, y_train_NO2, y_test_NO2 = model_selection.train_test_split(X, y_NO2, test_size=0.25, random_state= 1)
-print('training data has ' + str(X_train_NO2.shape[0]) + ' observation with ' + str(X_train_NO2.shape[1]) + ' features')
-print('test data has ' + str(X_test_NO2.shape[0]) + ' observation with ' + str(X_test_NO2.shape[1]) + ' features')
+index = X_train_NO2.index
 
+# Feature Scaling
+scaler = StandardScaler()
+scaler.fit(X_train_NO2)
+X_train_NO2 = scaler.transform(X_train_NO2)
+X_test_NO2 = scaler.transform(X_test_NO2)
 
-# # Feature Scaling
-# scaler = StandardScaler()
-# scaler.fit(X_train_NO2)
-# X_train_NO2 = scaler.transform(X_train_NO2)
-# X_test_NO2 = scaler.transform(X_test_NO2)
-
+# PM2.5
 y_PM = df_model['PM2p5']
-
-
-# NO2 Split the Data
 X_train_PM, X_test_PM, y_train_PM, y_test_PM = model_selection.train_test_split(X, y_PM, test_size=0.25, random_state= 1)
-print('training data has ' + str(X_train_PM.shape[0]) + ' observation with ' + str(X_train_PM.shape[1]) + ' features')
-print('test data has ' + str(X_test_PM.shape[0]) + ' observation with ' + str(X_test_PM.shape[1]) + ' features')
+index = X_train_PM.index
 
+# Feature Scaling
+scaler = StandardScaler()
+scaler.fit(X_train_PM)
+X_train_PM = scaler.transform(X_train_PM)
+X_test_PM = scaler.transform(X_test_PM)
 
-# # Feature Scaling
-# scaler = StandardScaler()
-# scaler.fit(X_train_PM)
-# X_train_PM = scaler.transform(X_train_PM)
-# X_test_PM = scaler.transform(X_test_PM)
-
-"""## NO2
-
-### ensemble learning - Bagging
-"""
+# NO2
+# ensemble learning - Bagging
 
 # Use the same random forest gridsearch as above
 from sklearn.ensemble import RandomForestRegressor
