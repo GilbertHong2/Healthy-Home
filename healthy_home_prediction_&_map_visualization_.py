@@ -526,6 +526,7 @@ plt.xlabel('Distance to Major Highway (m)', fontsize=18); plt.ylabel('PM2.5 (ug/
 df_vis.to_file('/content/drive/MyDrive/Colab Notebooks/model_data', driver='GeoJSON')
 
 # 6.Model
+# We build a model for No2, NO and PM2.5 here, since they are common factors that cause lung diseases, as well as other various diseases that harm the public.
 
 df_model = gpd.read_file('/content/drive/MyDrive/Colab Notebooks/model_data')
 
@@ -842,6 +843,14 @@ summary_2 = pd.DataFrame({'Random Forest':list(FI_rf.index),
                'Permutation Importance':list(PI_res.index)})
 summary_2
 
+# All model results
+result = pd.concat([summary_0, summary_1, summary_2], axis=1)
+result.columns = ['Random Forest NO2', 'Gradient Boost NO2', 'Permutation Importance NO2',
+       'Random Forest NO', 'Gradient Boost NO', 'Permutation Importance NO',
+       'Random Forest PM2.5', 'Gradient Boost PM2.5', 'Permutation Importance PM2.5']
+result
+
+# We can see that for all three harmful substances, the most importnat common factor using all three models is how close the houses are to the highway, which makes sense as they often cause pollutions in the nearby area. Overall, how far residences are from any type of roads contribute significantly to their levels of these substances, which implies that choosing an area relatively further from the roads may contribute positively to the overall health level of the household.
 
 
 
