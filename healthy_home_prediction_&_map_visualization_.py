@@ -483,42 +483,39 @@ sns.countplot(x = 'road_type', data = df_vis);
 plt.figure(figsize=(20,4))
 sns.countplot(x = 'road_type', hue = df_vis['Respiratory_HI'], data = df_vis);
 
-# NO: road type
+# NO on different road types
 plt.figure(figsize=(20,4))
 sns.boxplot(x = df_vis['road_type'], y = df_vis['NO']);
 
-# NO2: road type
+# NO2 on different road types
 plt.figure(figsize=(20,4))
 sns.boxplot(x = df_vis['road_type'], y = df_vis['NO2']);
 
-# PM2.5: road type
+# PM2.5 on different road types
 plt.figure(figsize=(20,4))
 sns.boxplot(x = df_vis['road_type'], y = df_vis['PM2p5']);
 
-"""## boxplot - zones"""
-
-# Check the sizes of data count
+# boxplot-zones
 plt.figure(figsize=(20,4))
 sns.countplot(x = 'zone', data = df_vis);
 
-# NO: zone
+# NO in different zones
 plt.figure(figsize=(20,4))
 sns.boxplot(x = df_vis['zone'], y = df_vis['NO']);
 
-# NO2: zone
+# NO2 in different zones
 plt.figure(figsize=(20,4))
 sns.boxplot(x = df_vis['zone'], y = df_vis['NO2']);
 
-# PM2.5: zone
+# PM2.5 in different zones
 plt.figure(figsize=(20,4))
 sns.boxplot(x = df_vis['zone'], y = df_vis['PM2p5']);
 
-# NO2: zone & health
+# NO2 in different zone & health
 plt.figure(figsize=(20,4))
 sns.boxplot(x = df_vis['zone'], y = df_vis['NO2'], hue = df_vis['Respiratory_HI']);
 
-"""## distance"""
-
+# distance
 # PM2p5
 plt.figure(figsize=(12, 5.5))
 plt.scatter(df_vis['closest_highway'], df_vis['PM2p5'], s=3)
@@ -526,6 +523,9 @@ plt.ylim(10, 45)
 plt.tick_params(labelsize=16)
 plt.xlabel('Distance to Major Highway (m)', fontsize=18); plt.ylabel('PM2.5 (ug/m3)', fontsize=20)
 # plt.savefig('highway_distance.png', format='png', dpi=300)
+
+# save engineered dataset
+df_vis.to_file('/content/drive/MyDrive/Colab Notebooks/model_data', driver='GeoJSON')
 
 """# 6.Model"""
 
