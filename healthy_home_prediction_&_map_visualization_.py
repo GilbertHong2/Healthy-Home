@@ -464,29 +464,18 @@ Corr
 g0 = sns.barplot(x="Target Correlation", y=Corr.index, data=Corr)
 g0.figure.set_size_inches(12, 9)
 
-"""1.   NO2易于侵入呼吸道深部细支气管及肺泡，长期低浓度吸入可导致肺部组织损坏，引起肺水肿。 有研究表明，哮喘儿童发生支气管炎症状的增多与长期接触NO2有关。 大气中过多的O3会对呼吸系统产生影响，引发哮喘、降低肺功能并导致肺部疾病。
-2.   PM2.5进入肺部对局部组织有堵塞作用，可使局部支气管的通气功能下降，细支气管和肺泡的换气功能丧失。 吸附着有害气体的PM2.5可以刺激或腐蚀肺泡壁，长期作用可使呼吸道防御机能受到损害，发生支气管炎、肺气肿和支气管哮喘等
-
-
-"""
-
 gpd_1_vis = gpd_1_city.copy()
 
-"""## map"""
-
-# Plot the overall heatmap that will go into the web-app
+# Plot the overall heatmap
 plt.figure(figsize = (11, 10))
 plt.scatter(gpd_1_vis.Longitude, gpd_1_vis.Latitude, s=5, c = gpd_1_vis.NO2)
 plt.colorbar(); plt.xlabel('Longitude', fontsize=18); plt.ylabel('Latitude', fontsize=18)
 
-# Plot the overall heatmap that will go into the web-app
 plt.figure(figsize = (11, 10))
 plt.scatter(gpd_1_vis.Longitude, gpd_1_vis.Latitude, s=5, c = gpd_1_vis.PM2p5, cmap='inferno')
 plt.colorbar(); plt.xlabel('Longitude', fontsize=18); plt.ylabel('Latitude', fontsize=18)
 
-"""## boxplot - roads"""
-
-# Check the sizes of data count
+# boxplot - roads
 plt.figure(figsize=(20,4))
 sns.countplot(x = 'road_type', data = df_vis);
 
