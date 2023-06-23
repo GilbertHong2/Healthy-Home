@@ -749,8 +749,23 @@ g2 = sns.barplot(x="Feature Importance (GB)", y=FI_gb.index, data=FI_gb)
 g2.figure.set_size_inches(12, 9)
 
 # permutation importance
+# Current paramters
+grid_search_best_no = forest_grid_no.best_estimator_
+pprint(grid_search_best_no.get_params())
+
+# Permutation Importance
+PI_no = permutation_importance(grid_search_best_no, X_test_NO, y_test_NO, n_repeats=5, random_state=1)
+
+PI_res = pd.DataFrame(data=np.transpose([PI_no['importances_mean'],PI_no['importances_std']]),
+             index = X.columns,columns=['PI_mean','PI_std'])
+PI_res = PI_res.sort_values(by='PI_mean',ascending=False)
+PI_res
 
 # result summary
+summary_1 = pd.DataFrame({'Random Forest':list(FI_rf.index),
+              'Gradient Boost':list(FI_gb.index),
+               'Permutation Importance':list(PI_res.index)})
+summary_1
 
 # PM2.5 (HW)
 
